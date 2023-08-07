@@ -1,8 +1,12 @@
-from queue import Full
 import time
-
+import sys
 import cv2
 import depthai as dai
+
+if len(sys.argv) > 1:
+    ip_address = sys.argv[1]
+else:
+    ip_address = None
 
 COLOR = True
 
@@ -83,7 +87,6 @@ class HostSync:
         self.arrays = {}
 
     def add_msg(self, name, msg):
-        # print("Call add_msg name=", name)
         if not name in self.arrays:
             self.arrays[name] = []
         # Add msg to array
@@ -109,10 +112,13 @@ class HostSync:
         return False
 
 if __name__ == '__main__':
-    device_info = dai.DeviceInfo("169.254.1.222")
-    # with dai.Device(pipeline, device_info, maxUsbSpeed=dai.UsbSpeed.HIGH) as device:
-    with dai.Device(pipeline, maxUsbSpeed=dai.UsbSpeed.HIGH) as device:
+    def get_device():
+        if ip_address is not None:
+            return dai.Device(pipeline, dai.DeviceInfo(ip_address), maxUsbSpeed=dai.UsbSpeed.HIGH)
+        else:
+            return dai.Device(pipeline, maxUsbSpeed=dai.UsbSpeed.HIGH)
 
+    with get_device() as device:
         qs = []
         qs.append(device.getOutputQueue("depth", maxSize=1, blocking=False))
         qs.append(device.getOutputQueue("colorize", maxSize=1, blocking=False))
