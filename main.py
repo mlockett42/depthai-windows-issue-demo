@@ -118,38 +118,41 @@ if __name__ == '__main__':
         else:
             return dai.Device(pipeline, maxUsbSpeed=dai.UsbSpeed.HIGH)
 
-    with get_device() as device:
-        qs = []
-        qs.append(device.getOutputQueue("depth", maxSize=1, blocking=False))
-        qs.append(device.getOutputQueue("colorize", maxSize=1, blocking=False))
-        qs.append(device.getOutputQueue("rectified_left", maxSize=1, blocking=False))
-        qs.append(device.getOutputQueue("rectified_right", maxSize=1, blocking=False))
+    start_time = time.time()
+    try:
+        with get_device() as device:
+            end_time = time.time()
+            print(f"Time to start up (s) {end_time - start_time}")
+            qs = []
+            qs.append(device.getOutputQueue("depth", maxSize=1, blocking=False))
+            qs.append(device.getOutputQueue("colorize", maxSize=1, blocking=False))
+            qs.append(device.getOutputQueue("rectified_left", maxSize=1, blocking=False))
+            qs.append(device.getOutputQueue("rectified_right", maxSize=1, blocking=False))
 
-        serial_no = device.getMxId()
-        sync = HostSync()
-        depth_vis, color = None, None
+            serial_no = device.getMxId()
+            sync = HostSync()
+            depth_vis, color = None, None
 
-        previous_save_time = 0.0
-        any_output = False
+            while True:
+                for q in qs:
+                    new_msg = q.tryGet()
+                    if new_msg is not None:
+                        msgs = sync.add_msg(q.getName(), new_msg)
+                        if msgs:
+                            depth = msgs["depth"].getFrame()
+                            color = msgs["colorize"].getCvFrame()
+                            cv2.imshow("color", color)
 
-        while True:
-            for q in qs:
-                new_msg = q.tryGet()
-                if new_msg is not None:
-                    msgs = sync.add_msg(q.getName(), new_msg)
-                    if msgs:
-                        depth = msgs["depth"].getFrame()
-                        color = msgs["colorize"].getCvFrame()
-                        cv2.imshow("color", color)
-                        any_output = True
+                key = cv2.waitKey(1)
 
-            now = time.time() * 1000.0
+                if key == ord("q"):
+                    print("Attempting to terminate")
+                    break
+    except Exception as ex:
+        end_time = time.time()
+        print(f"Time to fail (s) {end_time - start_time}")
+        raise ex
 
-            key = cv2.waitKey(1)
-
-            if key == ord("q"):
-                print("Attempting to terminate")
-                break
 
     print("Waiting to shutdown")
 
