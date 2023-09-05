@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "da09666861656f45a2ef34bd289415e7dd380406697b126e7084dd160725bc70"
+            "sha256": "76fc7608a8b1603e11e847f7f954615ee7774a9aac3e7255fad8570cbffea1b4"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,10 @@
         ]
     },
     "default": {
+        "depthai": {
+            "editable": true,
+            "path": "./depthai-python"
+        },
         "numpy": {
             "hashes": [
                 "sha256:0d60fbae8e0019865fc4784745814cff1c421df5afee233db6d88ab4f14655a2",
