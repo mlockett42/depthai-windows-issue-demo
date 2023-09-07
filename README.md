@@ -10,21 +10,29 @@ Python 3.10 and pipenv (https://pipenv.pypa.io/en/latest/). Pipenv means we will
 
 These instructions should work under both Linux and Windows.
 
-Check out the repo.
+Check out the repo and update the submodules.
 
-cd to the root of the repo
-
-```
-pipenv sync
-```
-
-This will create the virtualenv for this project.
+Create a virtualenv
 
 ```
-pipenv shell
+virtualenv venv
+venv\Scripts\activate
 ```
 
-This will run a shell using the virtualenv for this project
+Install depthai-python in the virtualenv
+```
+cd depthai-python
+python -m pip install . -v
+```
+
+This will need to compile a lot of C++ code so will take awhile.
+
+Install the other requirements
+```
+python -m pip install opencv-python numpy
+```
+
+Start the program up
 
 ```
 python main.py 169.254.1.222
